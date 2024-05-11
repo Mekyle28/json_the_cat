@@ -2,8 +2,28 @@ const needle = require('needle');
 
 
 const fetchBreedDescription = function(catBreed, callback) {
-  needle.get(`https://api.thecatapi.com/v1/breeds/search?q=${catBreed}`, callback);
+  needle.get(`https://api.thecatapi.com/v1/breeds/search?q=${catBreed}`, (error, response, body) => {
+
+    if (error !== null) {
+      return callback(error, null);
+    }
+
+    if (response.statusCode === 404) {
+      return callback(response.statusCode, null);
+    }
+
+    if (body.length === 0) {
+      let notFound = console.log("sorry, cat breed is not found");
+      return callback(notFound, null);
+    }
+    
+    if (response.statusCode === 200) {
+      let breedDescription = (body[0]["description"]);
+      return callback(null, breedDescription);
+    }
+  });
 };
+
 
 module.exports = { fetchBreedDescription };
 
